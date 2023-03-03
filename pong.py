@@ -40,6 +40,23 @@ ball.goto(0, 0)         # start position in middle of screen
 ball.dx = 0.2             # ball movement in x-axis, by 2px
 ball.dy = 0.2             # ball movement in y-axis, by 2px
 
+# score
+score_a = 0
+score_b = 0
+
+# display score
+pen = turtle.Turtle()
+pen.speed(0)
+pen.color("green")
+pen.penup()
+pen.hideturtle()
+pen.goto(0, 260)
+pen.write(
+    "A  0 : 0  B",
+    align="center",
+    font=("Courier", 21, "bold")
+)
+
 
 # function for paddle A
 def paddle_a_up():
@@ -92,8 +109,29 @@ while True:
     if ball.xcor() > 390:
         ball.goto(0, 0)
         ball.dx *= -1
+        score_a += 1    # score for A
+        pen.clear()
+        pen.write(
+            "A  {} : {}  B".format(score_a, score_b),
+            align="center",
+            font=("Courier", 21, "bold")
+        )
+
     # ball bounce off the left wall
     if ball.xcor() < -390:
         ball.goto(0, 0)
         ball.dx *= -1
-    # ball bounce off the paddle
+        score_b += 1    # score for B
+        pen.clear()
+        pen.write(
+            "A  {} : {}  B".format(score_a, score_b),
+            align="center",
+            font=("Courier", 21, "bold")
+        )
+
+    # ball bounce off the paddle A
+    if ball.xcor() < -330 and ball.ycor() < paddle_a.ycor() + 50 and ball.ycor() > paddle_a.ycor() - 50:
+        ball.dx *= -1
+    # ball bounce off the paddle B
+    if ball.xcor() > 330 and ball.ycor() < paddle_b.ycor() + 50 and ball.ycor() > paddle_b.ycor() - 50:
+        ball.dx *= -1
