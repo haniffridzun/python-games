@@ -1,5 +1,6 @@
 # graphics module
 import turtle
+import os
 
 # window setup
 wn = turtle.Screen()
@@ -36,6 +37,8 @@ ball.shape("square")
 ball.color("yellow")
 ball.penup()
 ball.goto(0, 0)         # start position in middle of screen
+ball.dx = 0.2             # ball movement in x-axis, by 2px
+ball.dy = 0.2             # ball movement in y-axis, by 2px
 
 
 # function for paddle A
@@ -65,12 +68,32 @@ def paddle_b_down():
 
 
 # keyboard binding
+wn.listen()
 wn.onkeypress(paddle_a_up, "a")
 wn.onkeypress(paddle_a_down, "d")
 wn.onkeypress(paddle_b_up, "j")
 wn.onkeypress(paddle_b_down, "l")
-wn.listen()
 
 # main game loop
 while True:
     wn.update()
+    # ball movement
+    ball.setx(ball.xcor() + ball.dx)
+    ball.sety(ball.ycor() + ball.dy)
+    # ball bounce off the top wall
+    if ball.ycor() > 290:
+        ball.sety(290)
+        ball.dy *= -1
+    # ball bounce off the bottom wall
+    if ball.ycor() < -290:
+        ball.sety(-290)
+        ball.dy *= -1
+    # ball bounce off the right wall
+    if ball.xcor() > 390:
+        ball.goto(0, 0)
+        ball.dx *= -1
+    # ball bounce off the left wall
+    if ball.xcor() < -390:
+        ball.goto(0, 0)
+        ball.dx *= -1
+    # ball bounce off the paddle
