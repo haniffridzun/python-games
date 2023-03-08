@@ -1,11 +1,14 @@
 import numpy as np
 import pygame
 import sys
+import math
 
 ROW_COUNT = 6
 COL_COUNT = 7
 BLUE = (0, 0, 255)
 BLACK = (0, 0, 0)
+RED = (255, 0, 0)
+YELLOW = (255, 255, 0)
 
 
 def create_board():
@@ -62,7 +65,18 @@ def draw_board(board):
                              (c*SQUARESIZE, r*SQUARESIZE+SQUARESIZE, SQUARESIZE, SQUARESIZE))
             pygame.draw.circle(screen,
                                BLACK,
-                               (int(c*SQUARESIZE+SQUARESIZE/2), int(r*SQUARESIZE+SQUARESIZE/2)), RADIUS)
+                               (int(c*SQUARESIZE+SQUARESIZE/2), int(r*SQUARESIZE+SQUARESIZE+SQUARESIZE/2)), RADIUS)
+    for c in range(COL_COUNT):
+        for r in range(ROW_COUNT):
+            if board[r][c] == 1:
+                pygame.draw.circle(screen,
+                                   RED,
+                                   (int(c*SQUARESIZE+SQUARESIZE/2), height - int(r*SQUARESIZE+SQUARESIZE/2)), RADIUS)
+            elif board[r][c] == 2:
+                pygame.draw.circle(screen,
+                                   YELLOW,
+                                   (int(c*SQUARESIZE+SQUARESIZE/2), height - int(r*SQUARESIZE+SQUARESIZE/2)), RADIUS)
+    pygame.display.update()
 
 
 board = create_board()
@@ -77,37 +91,62 @@ width = COL_COUNT * SQUARESIZE
 height = (ROW_COUNT+1) * SQUARESIZE
 size = (width, height)
 screen = pygame.display.set_mode(size)
+my_font = pygame.font.SysFont('monospace', 75)
 draw_board(board)
 
-# todo: at minutes 2:24:08
 while not game_over:
     # get user input
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             sys.exit()
+        # mouse motion
+        if event.type == pygame.MOUSEMOTION:
+            pygame.draw.rect(screen,
+                             BLACK,
+                             (0, 0, width, SQUARESIZE))
+            posx = event.pos[0]
+            if turn == 0:
+                pygame.draw.circle(screen,
+                                   RED,
+                                   (posx, int(SQUARESIZE/2)), RADIUS)
+            else:
+                pygame.draw.circle(screen,
+                                   YELLOW,
+                                   (posx, int(SQUARESIZE/2)), RADIUS)
+        pygame.display.update()
+        # mouse click
         if event.type == pygame.MOUSEBUTTONDOWN:
+            pygame.draw.rect(screen,
+                             BLACK,
+                             (0, 0, width, SQUARESIZE))
             # ask player1 input
             if turn == 0:
-                col = int(input("player 1 make selection (0-6):"))
+                posx = event.pos[0]
+                col = int(math.floor(posx / SQUARESIZE))
                 if is_valid_loc(board, col):
                     row = get_next_open_row(board, col)
                     drop_piece(board, row, col, 1)
                     # winning condition
                     if winning_move(board, 1):
-                        print('player 1 wins!')
+                        label = my_font.render('player 1 wins!', 1, RED)
+                        screen.blit(label, (40, 10))
                         game_over = True
-                        break
             # ask player2 input
             else:
-                col = int(input("player 2 make selection (0-6):"))
+                posx = event.pos[0]
+                col = int(math.floor(posx / SQUARESIZE))
+
                 if is_valid_loc(board, col):
                     row = get_next_open_row(board, col)
                     drop_piece(board, row, col, 2)
                     # winning condition
                     if winning_move(board, 2):
-                        print('player 2 wins!')
+                        label = my_font.render('player 2 wins!', 1, YELLOW)
+                        screen.blit(label, (40, 10))
                         game_over = True
-                        break
             print_board(board)
+            draw_board(board)
             turn += 1
             turn = turn % 2
+            if game_over:
+                pygame.time.wait(6000)
